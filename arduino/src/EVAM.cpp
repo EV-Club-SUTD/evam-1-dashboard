@@ -25,8 +25,13 @@ void setSwitchesGPIO(){
     //pinMode(BUZZER_OUT_PIN, OUTPUT);
 
     pinMode(REVERSE_SWITCH_PIN, INPUT);
-    pinMode(BOOST_SWITCH_PIN, INPUT);
-    pinMode(NORMAL_DRIVE_SWITCH_PIN, INPUT);
+    //pinMode(BOOST_SWITCH_PIN, INPUT);
+    //pinMode(NORMAL_DRIVE_SWITCH_PIN, INPUT);
+    // The above code should NOT BE USED!! NORMAL_DRIVE_SWITCH_PIN is GPIO1 which is UART Tx.
+    // Setting it to high impedance will kill the serial monitor!
+    // BOOST_SWITCH_PIN is GPIO3 which is UART Rx
+
+    // Thankfully both of these pins aren't used anywhere else in the program, so we can choose not to use them
     pinMode(MOTOR_LOCK_PIN, INPUT);
 }
 
@@ -46,6 +51,9 @@ void checkSendMotorLockout(){
     Serial.println(motorLockMsg.data.u8[0]);
     #endif
     ESP32Can.CANWriteFrame(&motorLockMsg);
+    #ifdef SERIAL_DEBUG
+    Serial.print("Motor lock message sent.");
+    #endif
 }
 
 //carries out any functions that need to be done before power is lost

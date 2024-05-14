@@ -7,7 +7,7 @@ const int rx_queue_size = 10;       // Receive Queue size
 //Sets up CAN Bus
 //to be run in the Arduino setup function
 int canSetup(){ 
-  CAN_cfg.speed = CAN_SPEED_500KBPS;
+  CAN_cfg.speed = CAN_SPEED_1000KBPS; // HACK: somehow 1000KBPS works with 8-bit micros at 500KBPS for some reason
   CAN_cfg.tx_pin_id = GPIO_NUM_5;
   CAN_cfg.rx_pin_id = GPIO_NUM_14;
   CAN_cfg.rx_queue = xQueueCreate(rx_queue_size, sizeof(CAN_frame_t));
@@ -24,6 +24,19 @@ void checkIncomingCanMessages(){
   CAN_frame_t rx_frame;
 
   if (xQueueReceive(CAN_cfg.rx_queue, &rx_frame, 3 * portTICK_PERIOD_MS) == pdTRUE) {
+
+    #ifdef SERIAL_DEBUG
+    if(rx_frame.MsgID >= 8 && rx_frame.MsgID <= 19) {
+      // Status message received, print debug information
+      Serial.print(rx_frame.MsgID);
+      Serial.print(":");
+      Serial.println(rx_frame.data.u8[0]);
+      Serial.print("Current status message = ");
+      for(int i = 0; i < sizeof(statusMessage); i++)
+          Serial.printf("%u ", statusMessage[i]);
+      Serial.println("");
+    }
+    #endif
 
     //check status messages
     if(rx_frame.MsgID == ECU_STATUS_MSG_ID){

@@ -2,7 +2,7 @@
 
 /********** MESSAGES FOR BLE CHARACTERISTICS **********/
 uint8_t coreMessage[5];
-uint8_t statusMessage[11];
+uint8_t statusMessage[11]; // 0=error, 1=ok, 255=offline (can be node that did not fully init)
 uint8_t batteryMessage[5];
 
 /********** MESSAGES FOR CAN BUS **********/
