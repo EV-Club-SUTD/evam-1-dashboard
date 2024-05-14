@@ -63,21 +63,35 @@ void setup()
   setStatusCharacteristic();
   setLightingCharacteristic();
 
+  #ifdef SERIAL_DEBUG
+  Serial.println("Status and lighting characteristics set.");
+  #endif //SERIAL_DEBUG
+
   /* GPIO SETUP */
   setSwitchesGPIO();  
   attachInterrupts();
+
+  #ifdef SERIAL_DEBUG
+  Serial.println("GPIO and interrupts set.");
+  #endif //SERIAL_DEBUG
 
   /* SET UP EEPROM */
   //EEPROM.begin(EEPROM_SIZE);
   //lightSwitchOn = EEPROM.read(0); //disabled until we figure out how to save the state just before shutdown. See function shutDown()
   lightSwitchOn = true;  //can eventually be changed to read the EEPROM
   requestCanNodeStatuses(); //initial request to all nodes for their status
+  #ifdef SERIAL_DEBUG
+  Serial.println("Requesting CAN node statuses");
+  #endif //SERIAL_DEBUG
 }
 
 
 /*************** MAIN LOOP ***************/
 void loop()
 {
+  // #ifdef SERIAL_DEBUG
+  // Serial.println("Loop ran!");
+  // #endif
   unsigned long currentMillis = millis();
 
   sendButtonCanMessages(&currentMillis);
@@ -105,6 +119,7 @@ void loop()
   if (currentMillis - prevMotorLockMillis > MOTOR_LOCK_MSG_REFRESH_INTERVAL)
   {
     checkSendMotorLockout();
+    requestCanNodeStatuses(); // force a refresh of node statuses
     prevMotorLockMillis = currentMillis;
   }
 
